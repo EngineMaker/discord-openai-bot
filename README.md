@@ -1,5 +1,8 @@
 # discord-openai-bot
 
+
+![_em-gpt___EngineMakerβ版_-_Discord](https://user-images.githubusercontent.com/19232182/225725368-e637e485-119e-44ae-8c79-3cd399463cdf.png)
+
 ## Set up for development
 ```sh
 pnpm i
