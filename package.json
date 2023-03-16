@@ -1,20 +1,28 @@
 {
-  "name": "hello-discord-bot",
+  "name": "discord-openai-bot",
   "version": "1.0.0",
-  "description": "I created a discord bot to try it out.",
+  "description": "A discord bot that can talk with OpenAI.",
   "main": "dist/index.js",
   "types": "src/index.d.ts",
   "scripts": {
+    "dev": "nodemon node dist/index.js",
     "build": "tsc",
-    "start": "node dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node dist/index.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "OpenAI",
+    "Discord",
+    "Bot"
+  ],
+  "author": "mk@mktoho.org",
   "license": "ISC",
   "dependencies": {
     "discord.js": "^14.8.0",
     "dotenv": "^16.0.3",
+    "openai": "^3.2.1",
     "typescript": "^4.9.5"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.21"
   }
 }
