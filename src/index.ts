@@ -11,6 +11,8 @@ import {
 import { Configuration, OpenAIApi } from 'openai'
 
 import dotenv from 'dotenv'
+import { cheefulPrompt } from './prompt/cheerful'
+import { basicPrompt } from './prompt/basic'
 dotenv.config()
 
 const main = () => {
@@ -20,6 +22,7 @@ const main = () => {
     'APP_ID',
     'OPENAI_API_KEY',
     'TARGET_CHANNEL_ID',
+    'TARGET_CHANNEL_ID_CHEEFUL',
   ]
 
   envNames.forEach((name: string) => {
@@ -31,6 +34,7 @@ const main = () => {
   if (!process.env.APP_ID) return
   if (!process.env.OPENAI_API_KEY) return
   if (!process.env.TARGET_CHANNEL_ID) return
+  if (!process.env.TARGET_CHANNEL_ID_CHEEFUL) return
 
   // discordサーバーにコマンドを登録（今は使ってないですが……）
   const commands = [
@@ -74,23 +78,31 @@ const main = () => {
   })
 
   client.on(Events.MessageCreate, async (message: Message) => {
-    if (message.channel.id !== process.env.TARGET_CHANNEL_ID) return
     if (message.author.bot) return
-
-    const targetChannel = await client.channels.fetch(
-      process.env.TARGET_CHANNEL_ID
+    if (
+      message.channel.id !== process.env.TARGET_CHANNEL_ID &&
+      message.channel.id !== process.env.TARGET_CHANNEL_ID_CHEEFUL
     )
-    if (targetChannel?.type === ChannelType.GuildText) {
+      return
+
+    if (message.channel?.type === ChannelType.GuildText) {
       const configuration = new Configuration({
         apiKey: process.env.OPENAI_API_KEY,
       })
       const openai = new OpenAIApi(configuration)
-      targetChannel.sendTyping()
+      const prompt =
+        message.channel.id === process.env.TARGET_CHANNEL_ID_CHEEFUL
+          ? cheefulPrompt
+          : basicPrompt
+      message.channel.sendTyping()
       const response = await openai.createChatCompletion({
         model: 'gpt-3.5-turbo',
-        messages: [{ role: 'user', content: message.content }],
+        messages: prompt(message),
+        temperature: 0.7,
       })
-      targetChannel.send(response.data.choices[0].message?.content || 'error!')
+      message.channel.send(
+        response.data.choices[0].message?.content || 'error!'
+      )
     }
   })
 

@@ -16,3 +16,10 @@ and
 ```
 pnpm dev
 ```
+
+
+## Deploy
+GCP Container Registry
+```
+gcloud builds submit --tag gcr.io/<YOUR PROJECT NAME>/<YOUR IMAGE NAME> .
+```
