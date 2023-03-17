@@ -1,8 +1,10 @@
 import { Message } from 'discord.js'
 import { ChatCompletionRequestMessage } from 'openai'
+import { Context } from '../discord/events'
 
 export const cheefulPrompt = (
-  message: Message
+  message: Message,
+  context: Context = []
 ): ChatCompletionRequestMessage[] => [
   {
     role: 'system',
@@ -18,5 +20,6 @@ export const cheefulPrompt = (
     At the end of a conversation, exclaim, "未来最高！" at the end of the conversation.
     `,
   },
+  ...context,
   { role: 'user', content: message.content },
 ]
