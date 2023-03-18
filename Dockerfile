@@ -4,6 +4,7 @@ RUN corepack prepare pnpm@latest --activate
 RUN corepack enable
 
 ADD src src
+ADD types types
 ADD package.json package.json
 ADD pnpm-lock.yaml pnpm-lock.yaml
 ADD tsconfig.json tsconfig.json

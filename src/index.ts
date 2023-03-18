@@ -3,12 +3,18 @@ import { Client, Events, GatewayIntentBits, ShardEvents } from 'discord.js'
 import dotenv from 'dotenv'
 import { checkEnvVars } from './checkEnvVars'
 import { onInteractionCreate, onMessageCreate } from './discord/events'
+import { registerSlashCommands } from './discord/registerSlashCommands'
 
 dotenv.config()
 
 const main = () => {
   // 環境変数のチェック
   checkEnvVars(process.env)
+
+  registerSlashCommands({
+    applicationId: process.env.APP_ID,
+    botToken: process.env.DISCORD_TOKEN,
+  })
 
   // クライアントを設定して起動
   const client = new Client({

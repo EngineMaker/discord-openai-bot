@@ -1,4 +1,9 @@
-import { REST, Routes } from 'discord.js'
+import {
+  REST,
+  Routes,
+  SharedSlashCommandOptions,
+  SlashCommandStringOption,
+} from 'discord.js'
 
 // discordサーバーにコマンドを登録（今は使ってないですが……）
 const commands = [
@@ -7,8 +12,12 @@ const commands = [
     description: 'Replies with Pong!!!',
   },
   {
-    name: 'start-chat',
-    description: 'スレッドを作成してGPTとのチャットを開始します...',
+    name: 'prompt',
+    description: '現時点の会話履歴を表示します',
+  },
+  {
+    name: 'prompt-clear',
+    description: '会話履歴を消去します',
   },
 ]
 
@@ -23,8 +32,8 @@ export const registerSlashCommands: RegisterSlashCommands = ({
   applicationId,
   botToken,
 }) => {
-  const rest = new REST({ version: '10' }).setToken(applicationId)
-  rest.put(Routes.applicationCommands(botToken), {
+  const rest = new REST({ version: '10' }).setToken(botToken)
+  rest.put(Routes.applicationCommands(applicationId), {
     body: commands,
   })
 }

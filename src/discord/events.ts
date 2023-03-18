@@ -1,4 +1,4 @@
-import { ChannelType, Interaction, Message } from 'discord.js'
+import { ChannelType, Interaction, Message, MessageType } from 'discord.js'
 import {
   OpenAIApi,
   Configuration,
@@ -17,6 +17,19 @@ export const onInteractionCreate = async (interaction: Interaction) => {
 
   if (interaction.commandName === 'ping') {
     await interaction.reply('Pong!')
+  }
+
+  if (interaction.commandName === 'prompt') {
+    await interaction.reply(
+      `\`\`\`json
+${JSON.stringify(userContext[interaction.user.id], null, 2)}
+\`\`\``
+    )
+  }
+
+  if (interaction.commandName === 'prompt-clear') {
+    userContext[interaction.user.id] = []
+    await interaction.reply('会話履歴を消去しました。')
   }
 }
 
@@ -48,11 +61,11 @@ const callChatAPI = async (
     if (context.every(c => c.role === 'system')) throw e
 
     // いっぱいになったら半分消す
-    const shrinked = [
-      ...context.filter(c_1 => c_1.role === 'system'),
-      ...context.filter(c_2 => c_2.role !== 'system').slice(context.length / 2),
-    ]
-    channelContext[message.channel.id] = shrinked
+    const shrinked = context
+      .filter(c_2 => c_2.role !== 'system')
+      .slice(context.length / 2)
+
+    userContext[message.author.id] = shrinked
     // console.log('messages shrinked!', shrinked.length)
     return await callChatAPI(message, shrinked)
   }
@@ -60,6 +73,7 @@ const callChatAPI = async (
 
 export const onMessageCreate = async (message: Message) => {
   if (message.author.bot) return
+  if (message.type === MessageType.Reply) return
   if (
     message.channel.id !== process.env.TARGET_CHANNEL_ID &&
     message.channel.id !== process.env.TARGET_CHANNEL_ID_CHEEFUL
@@ -70,10 +84,7 @@ export const onMessageCreate = async (message: Message) => {
 
   if (message.channel.type === ChannelType.GuildText) {
     message.channel.sendTyping()
-    const response = await callChatAPI(
-      message,
-      channelContext[message.channel.id]
-    )
+    const response = await callChatAPI(message, userContext[message.author.id])
 
     // console.log(response?.data)
 
