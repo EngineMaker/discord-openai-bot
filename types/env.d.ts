@@ -6,5 +6,7 @@ declare namespace NodeJS {
     TARGET_CHANNEL_ID: string
     TARGET_CHANNEL_ID_CHEEFUL: string
     TARGET_CHANNEL_ID_UNKNOWN: string
+    TARGET_CHANNEL_ID_OLD: string
+    TARGET_CHANNEL_ID_PASSION: string
   }
 }

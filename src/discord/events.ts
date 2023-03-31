@@ -9,6 +9,7 @@ import { basicPrompt } from '../prompt/basic'
 import { cheefulPrompt } from '../prompt/cheerful'
 import { unknownPrompt } from '../prompt/unknown'
 import { oldPersonPrompt } from '../prompt/old'
+import { passionPrompt } from '../prompt/passion'
 
 export type Context = ChatCompletionRequestMessage[]
 const userContext: { [key: string]: Context } = {}
@@ -48,6 +49,8 @@ const callChatAPI = async (
       ? unknownPrompt
       : message.channel.id === process.env.TARGET_CHANNEL_ID_OLD
       ? oldPersonPrompt
+      : message.channel.id === process.env.TARGET_CHANNEL_ID_PASSION
+      ? passionPrompt
       : basicPrompt
 
   const openai = new OpenAIApi(
@@ -82,7 +85,8 @@ export const onMessageCreate = async (message: Message) => {
     message.channel.id !== process.env.TARGET_CHANNEL_ID &&
     message.channel.id !== process.env.TARGET_CHANNEL_ID_CHEEFUL &&
     message.channel.id !== process.env.TARGET_CHANNEL_ID_UNKNOWN &&
-    message.channel.id !== process.env.TARGET_CHANNEL_ID_OLD
+    message.channel.id !== process.env.TARGET_CHANNEL_ID_OLD &&
+    message.channel.id !== process.env.TARGET_CHANNEL_ID_PASSION
   )
     return
 
@@ -90,9 +94,8 @@ export const onMessageCreate = async (message: Message) => {
     message.channel.sendTyping()
     const response = await callChatAPI(
       message,
-      channelContext[message.author.id]
+      channelContext[message.channel.id]
     )
-
     const answer = response?.data.choices[0].message?.content
 
     if (!userContext[message.author.id]) {
