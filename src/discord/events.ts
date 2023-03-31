@@ -7,6 +7,8 @@ import {
 } from 'openai'
 import { basicPrompt } from '../prompt/basic'
 import { cheefulPrompt } from '../prompt/cheerful'
+import { unknownPrompt } from '../prompt/unknown'
+import { oldPersonPrompt } from '../prompt/old'
 
 export type Context = ChatCompletionRequestMessage[]
 const userContext: { [key: string]: Context } = {}
@@ -42,6 +44,10 @@ const callChatAPI = async (
   const prompt =
     message.channel.id === process.env.TARGET_CHANNEL_ID_CHEEFUL
       ? cheefulPrompt
+      : message.channel.id === process.env.TARGET_CHANNEL_ID_UNKNOWN
+      ? unknownPrompt
+      : message.channel.id === process.env.TARGET_CHANNEL_ID_OLD
+      ? oldPersonPrompt
       : basicPrompt
 
   const openai = new OpenAIApi(
@@ -51,7 +57,6 @@ const callChatAPI = async (
   )
 
   try {
-    // console.log(prompt(message, context))
     return await openai.createChatCompletion({
       model: 'gpt-3.5-turbo',
       messages: prompt(message, context),
@@ -65,8 +70,7 @@ const callChatAPI = async (
       .filter(c_2 => c_2.role !== 'system')
       .slice(context.length / 2)
 
-    userContext[message.author.id] = shrinked
-    // console.log('messages shrinked!', shrinked.length)
+    channelContext[message.channel.id] = shrinked
     return await callChatAPI(message, shrinked)
   }
 }
@@ -76,17 +80,18 @@ export const onMessageCreate = async (message: Message) => {
   if (message.type === MessageType.Reply) return
   if (
     message.channel.id !== process.env.TARGET_CHANNEL_ID &&
-    message.channel.id !== process.env.TARGET_CHANNEL_ID_CHEEFUL
+    message.channel.id !== process.env.TARGET_CHANNEL_ID_CHEEFUL &&
+    message.channel.id !== process.env.TARGET_CHANNEL_ID_UNKNOWN &&
+    message.channel.id !== process.env.TARGET_CHANNEL_ID_OLD
   )
     return
 
-  // console.log(channelContext[message.channel.id]?.length)
-
   if (message.channel.type === ChannelType.GuildText) {
     message.channel.sendTyping()
-    const response = await callChatAPI(message, userContext[message.author.id])
-
-    // console.log(response?.data)
+    const response = await callChatAPI(
+      message,
+      channelContext[message.author.id]
+    )
 
     const answer = response?.data.choices[0].message?.content
 

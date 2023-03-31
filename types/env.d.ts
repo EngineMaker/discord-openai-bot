@@ -5,5 +5,6 @@ declare namespace NodeJS {
     OPENAI_API_KEY: string
     TARGET_CHANNEL_ID: string
     TARGET_CHANNEL_ID_CHEEFUL: string
+    TARGET_CHANNEL_ID_UNKNOWN: string
   }
 }
